@@ -1,9 +1,9 @@
 name: Test Backend
 
 on:
-  push:
+  push_request:
     branches:
-      - dev
+      - main
 
 jobs:
   test:
