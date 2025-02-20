@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - dev
+    paths:
+      - "back/**"
 
 jobs:
   test:
@@ -15,6 +17,6 @@ jobs:
         with:
           node-version: 20
       - run: |
-          cd front
+          cd back
           npm ci
           npm test
