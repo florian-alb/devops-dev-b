@@ -16,6 +16,5 @@ jobs:
           node-version: 20
       - run: |
           cd back
-          ls
           npm i
           npm test
