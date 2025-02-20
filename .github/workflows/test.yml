@@ -12,6 +12,13 @@ jobs:
       image: node:20
     steps:
       - uses: actions/checkout@v3
-        with:
-          node-version: 20
-      - run: npm test
+
+      - name: Install Backend Dependencies
+        run: |
+          cd backend
+          npm ci  # ou npm install, selon ce que tu préfères
+
+      - name: Run Backend Tests
+        run: |
+          cd backend
+          npm test
