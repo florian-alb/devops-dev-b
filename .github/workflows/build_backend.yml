@@ -1,6 +1,6 @@
 name: Build & Deploy BACKEND to Scaleway
 on:
-  pull_request:
+  push:
     branches:
       - dev
 
