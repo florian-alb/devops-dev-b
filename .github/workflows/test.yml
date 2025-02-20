@@ -17,5 +17,5 @@ jobs:
       - run: |
           cd back
           ls
-          npm ci
+          npm i
           npm test
