@@ -15,6 +15,7 @@ jobs:
 
       - name: Install Backend Dependencies
         run: |
+          ls
           cd backend
           npm ci  # ou npm install, selon ce que tu préfères
 
