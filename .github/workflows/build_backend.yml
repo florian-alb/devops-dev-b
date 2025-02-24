@@ -19,6 +19,9 @@ jobs:
       - name: Build the Docker image
         working-directory: back
         run: docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image
+      - name: Tag the Docker Image
+        working-directory: back
+        run: docker tag backend-image ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/devops-front
       - name: Push the Docker Image
         working-directory: back
         run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image
@@ -33,7 +36,6 @@ jobs:
 
       - name: Use CLI
         uses: scaleway/action-scw@v0
-        id: cli
         with:
           save-config: true
           export-config: true
@@ -43,12 +45,14 @@ jobs:
           default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
 
-      - name: Login to Scaleway Container Registry
-        uses: docker/login-action@v3
-        with:
-          username: nologin
-          password: ${{ secrets.SCW_SECRET_KEY }}
-          registry: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}
-
-      - name: Deploy the Docker image
-        run: scw instance server list
+      - name: Create a container
+        run: |
+          scw container container create name=container-backend \
+          image=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest \
+          min-scale=0 \
+          max-scale=1 \
+          memory-limit=128MB \
+          cpu-limit=100m \
+          port=3000 \
+          env=${{ secrets.JWT_SECRET }} \
+          env=${{ secrets.DATABASE_URL }}
