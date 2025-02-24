@@ -33,6 +33,7 @@ jobs:
 
       - name: Use CLI
         uses: scaleway/action-scw@v0
+        id: cli
         with:
           save-config: true
           export-config: true
@@ -48,3 +49,6 @@ jobs:
           username: nologin
           password: ${{ secrets.SCW_SECRET_KEY }}
           registry: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}
+
+      - name: Deploy the Docker image
+        run: scw instance server list
