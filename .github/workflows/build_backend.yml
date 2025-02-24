@@ -45,7 +45,7 @@ jobs:
 
       - name: Create a container
         run: |
-          scw container create name=container-backend \
+          scw container container create name=container-backend \
           registry-image=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest \
           min-scale=0 \
           max-scale=1 \
