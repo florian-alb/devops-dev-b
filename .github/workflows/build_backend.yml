@@ -52,5 +52,5 @@ jobs:
           memory-limit=120 \
           cpu-limit=100 \
           port=3000 \
-          env=${{ secrets.JWT_SECRET }} \
-          env=${{ secrets.DATABASE_URL }}
+          environment-variables.JWT_SECRET=${{ secrets.JWT_SECRET }} \
+          environment-variables.DATABASE_URL=${{ secrets.DATABASE_URL }}
