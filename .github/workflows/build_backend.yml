@@ -19,9 +19,7 @@ jobs:
       - name: Build the Docker image
         working-directory: back
         run: docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image
-      - name: Tag the Docker Image
-        working-directory: back
-        run: docker tag backend-image ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/devops-front
+
       - name: Push the Docker Image
         working-directory: back
         run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image
