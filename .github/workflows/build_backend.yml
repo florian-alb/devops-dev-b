@@ -43,15 +43,10 @@ jobs:
           default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
 
-      - name: List Scaleway Namespaces
-        run: |
-          echo "Listing Scaleway namespaces..."
-          scw container registry namespace list
-
       - name: Create a container
         run: |
           scw container container create name=container-backend \
-          namespace-id=b48809e1-e0a8-47f6-b3a7-b52abd3a8fce \
+          namespace-id=fff60a01-13f1-4d75-99dd-ba21a100f036 \
           registry-image=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest \
           min-scale=0 \
           max-scale=1 \
