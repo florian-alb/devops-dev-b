@@ -50,7 +50,7 @@ jobs:
           registry-image=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest \
           min-scale=0 \
           max-scale=1 \
-          memory-limit=120 \
+          memory-limit=128 \
           cpu-limit=100 \
           port=3000 \
           environment-variables.JWT_SECRET=${{ secrets.JWT_SECRET }} \
