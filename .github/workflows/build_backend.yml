@@ -43,12 +43,12 @@ jobs:
           default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
           default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
 
+      - name: Delete container if extists
+        run: scw container container delete name=container-backend --wait || true
+
       - name: Create a container
         id: create-container
         run: |
-          # Delete existing container if it exists
-          scw container container delete name=container-backend --wait || true
-
           CONTAINER_INFO=$(scw container container create name=container-backend \
           namespace-id=fff60a01-13f1-4d75-99dd-ba21a100f036 \
           registry-image=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest \
