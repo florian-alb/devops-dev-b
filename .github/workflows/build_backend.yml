@@ -44,7 +44,8 @@ jobs:
           default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
 
       - name: Delete container if extists
-        run: scw container container delete name=container-backend --wait || true
+        id: container-delete
+        run: scw container container delete name=container-backend || true
 
       - name: Create a container
         id: create-container
