@@ -69,21 +69,23 @@ jobs:
           BACKEND_URL=$(scw container container get $CONTAINER_ID -o json | jq -r '.domain_name')
           echo "BACKEND_URL=https://${BACKEND_URL}" >> $GITHUB_OUTPUT
 
-  # build-frontend:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Login to Scaleway Container Registry
-  #       uses: docker/login-action@v3
-  #       with:
-  #         username: nologin
-  #         password: ${{ secrets.SCW_SECRET_KEY }}
-  #         registry: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Login to Scaleway Container Registry
+        uses: docker/login-action@v3
+        with:
+          username: nologin
+          password: ${{ secrets.SCW_SECRET_KEY }}
+          registry: ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}
 
-  #     - name: Build the Docker image
-  #       working-directory: front
-  #       run: docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image
+      - name: Build the Docker image
+        working-directory: front
+        run: |
+          --build-arg VITE_API_URL=${BACKEND_URL} \
+          docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image
 
-  #     - name: Push the Docker Image
-  #       working-directory: front
-  #       run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image
+      - name: Push the Docker Image
+        working-directory: front
+        run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image
