@@ -95,6 +95,7 @@ jobs:
       - name: Build the Docker image
         working-directory: front
         run: |
+          docker build \
           --build-arg VITE_API_URL=${BACKEND_URL} \
           docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image
 
