@@ -97,7 +97,7 @@ jobs:
         run: |
           docker build \
           --build-arg VITE_API_URL=${BACKEND_URL} \
-          docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image
+          -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image .
 
       - name: Push the Docker Image
         working-directory: front
