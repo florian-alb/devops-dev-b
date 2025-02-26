@@ -46,6 +46,9 @@ jobs:
       - name: Create a container
         id: create-container
         run: |
+          # Delete existing container if it exists
+          scw container container delete name=container-backend --wait || true
+
           CONTAINER_INFO=$(scw container container create name=container-backend \
           namespace-id=fff60a01-13f1-4d75-99dd-ba21a100f036 \
           registry-image=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest \
@@ -58,7 +61,9 @@ jobs:
           environment-variables.DATABASE_URL=${{ secrets.DATABASE_URL }} \
           --wait)
 
-          CONTAINER_ID=$(echo $CONTAINER_INFO)
+          CONTAINER_ID=$(echo $CONTAINER_INFO | jq -r '.id')
+          BACKEND_URL=$(scw container container get $CONTAINER_ID -o json | jq -r '.domain_name')
+          echo "BACKEND_URL=https://${BACKEND_URL}" >> $GITHUB_OUTPUT
 
   # build-frontend:
   #   runs-on: ubuntu-latest
