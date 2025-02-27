@@ -19,16 +19,21 @@ jobs:
 
       - name: Build the Docker image
         working-directory: back
-        run: docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image
+        run: docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest
 
-      - name: Push the Docker Image
+      - name: Tag & Push the Docker Image
         working-directory: back
-        run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image
+        run: |
+          docker tag backend-image:latest ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest
+          docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest
 
   deploy-backend:
     needs: build-backend
     runs-on: ubuntu-latest
     name: Deploy Bacnkend on Scaleway
+    outputs:
+      backend_url: ${{ steps.deploy-container.outputs.container_url }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -51,10 +56,10 @@ jobs:
             scw container container delete $CONTAINER_ID
           fi
 
-      - name: Create a container
-        id: create-container
+      - name: Deploy container
+        id: deploy-container
         run: |
-          scw container container create name=container-backend \
+          RESULT=$(scw container container create name=container-backend \
           namespace-id=fff60a01-13f1-4d75-99dd-ba21a100f036 \
           registry-image=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest \
           min-scale=0 \
@@ -63,11 +68,10 @@ jobs:
           cpu-limit=100 \
           port=3000 \
           environment-variables.JWT_SECRET=${{ secrets.JWT_SECRET }} \
-          environment-variables.DATABASE_URL=${{ secrets.DATABASE_URL }} \
-          --wait
+          environment-variables.DATABASE_URL=${{ secrets.DATABASE_URL }} -o json)
 
-          CONTAINER_ID=$(scw container container list | grep container-backend | awk '{print $1}')
-          BACKEND_URL=$(scw container container get $CONTAINER_ID -o json | jq -r '.domain_name')
+          echo "Container response: $RESULT"
+          BACKEND_URL=$(echo "$RESULT" | jq -r '.domain_name')
 
           echo "BACKEND_URL=https://${BACKEND_URL}" >> $GITHUB_OUTPUT
 
@@ -77,13 +81,6 @@ jobs:
     needs: deploy-backend
     steps:
       - uses: actions/checkout@v4
-
-      - name: Create .env file
-        working-directory: front
-        env:
-          BACKEND_URL: ${{ needs.deploy-backend.outputs.BACKEND_URL }}
-        run: |
-          echo "VITE_API_URL=${BACKEND_URL}" > .env
 
       - name: Login to Scaleway Container Registry
         uses: docker/login-action@v3
@@ -96,12 +93,14 @@ jobs:
         working-directory: front
         run: |
           docker build \
-          --build-arg VITE_API_URL=${BACKEND_URL} \
+          --build-arg VITE_API_URL="${{ needs.deploy-backend.outputs.backend_url }}" \
           -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image .
 
-      - name: Push the Docker Image
+      - name: Tage & Push the Docker Image
         working-directory: front
-        run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image
+        run: |
+          docker tag frontend-image:latest ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image:latest
+          docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image:latest
 
   # deploy-frontend:
   #   needs: build-frontend
