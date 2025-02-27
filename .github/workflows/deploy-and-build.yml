@@ -98,7 +98,41 @@ jobs:
         working-directory: front
         run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image:latest
 
-  # deploy-frontend:
-  #   needs: build-frontend
-  #   name: Deploy frontend on Scaleway
-  #   runs-on: ubuntu-latest
+  deploy-frontend:
+    needs: build-frontend
+    runs-on: ubuntu-latest
+    name: Deploy Frontend on Scaleway
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Use CLI
+        uses: scaleway/action-scw@v0
+        with:
+          save-config: true
+          export-config: true
+          version: v2.24.0
+          access-key: ${{ secrets.SCW_ACCESS_KEY }}
+          secret-key: ${{ secrets.SCW_SECRET_KEY }}
+          default-project-id: ${{ secrets.SCW_DEFAULT_PROJECT_ID }}
+          default-organization-id: ${{ secrets.SCW_DEFAULT_ORGANIZATION_ID }}
+
+      - name: Delete container if extists
+        run: |
+          CONTAINER_ID=$(scw container container list | grep container-frontend | awk '{print $1}') || true
+          if [ ! -z "$CONTAINER_ID" ]; then
+            scw container container delete $CONTAINER_ID
+          fi
+
+      - name: Deploy container
+        id: deploy-container
+        run: |
+          scw container container create name=container-frontend \
+          namespace-id=fff60a01-13f1-4d75-99dd-ba21a100f036 \
+          registry-image=${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image:latest \
+          min-scale=0 \
+          max-scale=1 \
+          memory-limit=128 \
+          cpu-limit=100 \
+          port=8080
