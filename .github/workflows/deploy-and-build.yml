@@ -102,3 +102,8 @@ jobs:
       - name: Push the Docker Image
         working-directory: front
         run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image
+
+  # deploy-frontend:
+  #   needs: build-frontend
+  #   name: Deploy frontend on Scaleway
+  #   runs-on: ubuntu-latest
