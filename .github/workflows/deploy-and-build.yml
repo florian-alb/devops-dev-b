@@ -21,11 +21,9 @@ jobs:
         working-directory: back
         run: docker build . -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest
 
-      - name: Tag & Push the Docker Image
+      - name: Push the Docker Image
         working-directory: back
-        run: |
-          docker tag backend-image:latest ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest
-          docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest
+        run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/backend-image:latest
 
   deploy-backend:
     needs: build-backend
@@ -96,11 +94,9 @@ jobs:
           --build-arg VITE_API_URL="${{ needs.deploy-backend.outputs.backend_url }}" \
           -t ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image .
 
-      - name: Tage & Push the Docker Image
+      - name: Tage and Push the Docker Image
         working-directory: front
-        run: |
-          docker tag frontend-image:latest ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image:latest
-          docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image:latest
+        run: docker push ${{ secrets.CONTAINER_REGISTRY_ENDPOINT }}/frontend-image:latest
 
   # deploy-frontend:
   #   needs: build-frontend
