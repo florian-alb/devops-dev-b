@@ -135,4 +135,4 @@ jobs:
           max-scale=1 \
           memory-limit=128 \
           cpu-limit=100 \
-          port=8080
+          port=80
